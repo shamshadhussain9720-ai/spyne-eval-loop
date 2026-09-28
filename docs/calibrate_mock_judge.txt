@@ -1,0 +1,7 @@
+$ python -m evalloop calibrate --judge configs/judge_mock.yaml
+judge=judge-mock labels=22 agreement=82% kappa=0.64 false_accept=0% false_reject=36%
+  disagree L01 (agg-02): human=correct judge=incorrect  extra helpful column
+  disagree L11 (ambig-01): human=correct judge=incorrect  reasonable alternative reading (most orders, spend as tie-break)
+  disagree L13 (ambig-01): human=correct judge=incorrect  top spender plus spend column
+  disagree L21 (subq-01): human=correct judge=incorrect  right rows, column order swapped
+NOT trusted for gating

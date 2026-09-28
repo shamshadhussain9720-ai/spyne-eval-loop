@@ -1,0 +1,12 @@
+=== promote demo ===
+$ python -m evalloop promote --from-file failures/prod-001.json ... --verify-config configs/mock/v1.yaml   # config that already passes
+REJECTED: case does NOT reproduce: config 'v1-full-schema' already passes it (output: 'SELECT AVG(Milliseconds) / 60000.0 FROM Track'). Not adding a test that cannot fail. Use --force to override.
+exit=1
+
+$ python -m evalloop promote --from-file failures/prod-001.json ... --verify-config configs/mock/v2.yaml   # config that failed in prod
+added prom-001 [aggregation] 'What is the average track length in minutes?'
+  verified: fails on configs/mock/v2.yaml
+exit=0
+
+$ python -m evalloop validate-cases
+15 cases OK

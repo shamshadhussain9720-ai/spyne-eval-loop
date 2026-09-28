@@ -1,0 +1,48 @@
+{
+  "judge_config": {
+    "name": "judge-mock",
+    "model": "mock-judge",
+    "config_hash": "295937f183af"
+  },
+  "n_labels": 22,
+  "n_invalid": 0,
+  "agreement": 0.8181818181818182,
+  "kappa": 0.6363636363636365,
+  "false_accept_rate": 0.0,
+  "false_reject_rate": 0.36363636363636365,
+  "disagreements": [
+    {
+      "id": "L01",
+      "case_id": "agg-02",
+      "human": "correct",
+      "judge": "incorrect",
+      "note": "extra helpful column"
+    },
+    {
+      "id": "L11",
+      "case_id": "ambig-01",
+      "human": "correct",
+      "judge": "incorrect",
+      "note": "reasonable alternative reading (most orders, spend as tie-break)"
+    },
+    {
+      "id": "L13",
+      "case_id": "ambig-01",
+      "human": "correct",
+      "judge": "incorrect",
+      "note": "top spender plus spend column"
+    },
+    {
+      "id": "L21",
+      "case_id": "subq-01",
+      "human": "correct",
+      "judge": "incorrect",
+      "note": "right rows, column order swapped"
+    }
+  ],
+  "thresholds": {
+    "min_kappa": 0.7,
+    "max_false_accept": 0.1
+  },
+  "trusted_for_gating": false
+}
