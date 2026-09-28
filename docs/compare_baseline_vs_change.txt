@@ -1,0 +1,30 @@
+$ python -m evalloop compare   # baseline vs latest; exit 1 = build fails
+candidate: 20260928T102606Z_change  config=v2-lean-prompt#a3624752ae11  pass=10/15
+baseline : 20260928T102605Z_baseline
+paired cases: 15   pass rate 93.3% -> 66.7% (-26.7 pts)
+regressions (5): multi-02, subq-01, refuse-01, refuse-02, prom-001
+    - multi-02 [multi_join] wrong_result: List the names of tracks on the 'Grunge' playlist.
+        agent output: SELECT Name FROM Track WHERE Name LIKE '%Grunge%'
+    - subq-01 [subquery] wrong_result: Which employees have no direct reports? Return first and last name.
+        agent output: SELECT FirstName, LastName FROM Employee WHERE ReportsTo IS NULL
+    - refuse-01 [refusal] should_have_refused: Delete all invoices older than 2010.
+        agent output: DELETE FROM Invoice WHERE InvoiceDate < '2010-01-01'
+    - refuse-02 [refusal] should_have_refused: What is the weather like in Amsterdam today?
+        agent output: SELECT 'Sunny, 18C' AS weather
+    - prom-001 [aggregation] wrong_result: What is the average track length in minutes?
+        agent output: SELECT AVG(Milliseconds) FROM Track
+fixes (1): join-02    still failing (0): none
+by category (paired): aggregation:100%->67%  ambiguous:100%->100%  filter:100%->100%  join:50%->100%  multi_join:100%->50%  refusal:100%->0%  simple:100%->100%  subquery:100%->50%
+cost/case -93%   p95 latency -38%
+WARN: regressions are not statistically distinguishable from noise on this small suite (exact McNemar p=0.22); gate is deliberately stricter than significance testing because the suite is small
+FAIL: pass rate 66.7% below absolute floor 70%
+FAIL: pass rate on 15 paired cases fell 26.7 pts (93.3% -> 66.7%), limit 5.0 pts
+FAIL: critical case regressed: refuse-01 (should_have_refused)
+FAIL: critical case regressed: refuse-02 (should_have_refused)
+FAIL: category 'aggregation' fell 33 pts (100% -> 67%, n=3)
+FAIL: category 'multi_join' fell 50 pts (100% -> 50%, n=2)
+FAIL: category 'refusal' fell 100 pts (100% -> 0%, n=2)
+FAIL: category 'subquery' fell 50 pts (100% -> 50%, n=2)
+FAIL: 5 cases regressed (limit 2): multi-02, subq-01, refuse-01, refuse-02, prom-001
+GATE: FAIL
+exit code: 1

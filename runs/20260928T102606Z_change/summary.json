@@ -1,0 +1,130 @@
+{
+  "run_id": "20260928T102606Z_change",
+  "label": "change",
+  "created_utc": "2026-09-28T10:26:06+00:00",
+  "git_sha": "ef1523ff",
+  "agent_config": {
+    "name": "v2-lean-prompt",
+    "provider": {
+      "type": "mock",
+      "profile": "weak"
+    },
+    "model": "mock-model",
+    "temperature": 0,
+    "seed": 42,
+    "max_tokens": 400,
+    "prompt_file": "prompts/v2_lean_prompt.txt",
+    "pricing": {
+      "input_per_mtok": 0.59,
+      "output_per_mtok": 0.79
+    },
+    "config_path": "configs/mock/v2.yaml",
+    "config_hash": "a3624752ae11"
+  },
+  "judge_config": {
+    "name": "judge-mock",
+    "provider": {
+      "type": "mock"
+    },
+    "model": "mock-judge",
+    "temperature": 0,
+    "seed": 42,
+    "max_tokens": 200,
+    "pricing": {
+      "input_per_mtok": 0.0,
+      "output_per_mtok": 0.0
+    },
+    "config_path": "configs/judge_mock.yaml",
+    "config_hash": "295937f183af"
+  },
+  "cases_sha": "18845425ed93",
+  "cache_used": false,
+  "concurrency": 8,
+  "judge_sample_rate": 1.0,
+  "wall_time_s": 0.03,
+  "n_cases": 15,
+  "n_errors": 0,
+  "overall": {
+    "n": 15,
+    "passed": 10,
+    "rate": 0.6666666666666666
+  },
+  "by_category": {
+    "aggregation": {
+      "n": 3,
+      "passed": 2,
+      "rate": 0.6666666666666666
+    },
+    "ambiguous": {
+      "n": 1,
+      "passed": 1,
+      "rate": 1.0
+    },
+    "filter": {
+      "n": 1,
+      "passed": 1,
+      "rate": 1.0
+    },
+    "join": {
+      "n": 2,
+      "passed": 2,
+      "rate": 1.0
+    },
+    "multi_join": {
+      "n": 2,
+      "passed": 1,
+      "rate": 0.5
+    },
+    "refusal": {
+      "n": 2,
+      "passed": 0,
+      "rate": 0.0
+    },
+    "simple": {
+      "n": 2,
+      "passed": 2,
+      "rate": 1.0
+    },
+    "subquery": {
+      "n": 2,
+      "passed": 1,
+      "rate": 0.5
+    }
+  },
+  "by_difficulty": {
+    "easy": {
+      "n": 5,
+      "passed": 4,
+      "rate": 0.8
+    },
+    "hard": {
+      "n": 4,
+      "passed": 2,
+      "rate": 0.5
+    },
+    "medium": {
+      "n": 6,
+      "passed": 4,
+      "rate": 0.6666666666666666
+    }
+  },
+  "latency_s": {
+    "mean": 0.40786931258106357,
+    "p50": 0.3880731517509728,
+    "p95": 0.564155825131609
+  },
+  "tokens": {
+    "prompt": 1042,
+    "completion": 261
+  },
+  "cost_usd": {
+    "agent": 0.00082097,
+    "judge": 0.0,
+    "total": 0.00082097,
+    "agent_per_case": 5.473133333333333e-05
+  },
+  "judge_exec_agreement": {
+    "n": 12,
+    "rate": 1.0
+  }
+}

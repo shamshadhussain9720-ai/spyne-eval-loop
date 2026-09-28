@@ -1,0 +1,821 @@
+<!doctype html><meta charset=utf-8><title>Eval report</title>
+<style>body{font:14px/1.45 system-ui,sans-serif;margin:24px;max-width:1150px;color:#1a1a1a}
+table{border-collapse:collapse;margin:8px 0 20px}td,th{border:1px solid #ccc;padding:4px 9px;text-align:left;vertical-align:top}
+th{background:#f3f3f3}.pass{color:#0a7a2f;font-weight:600}.fail{color:#b3261e;font-weight:600}.warn{color:#a15c00}
+.bar{display:inline-block;height:10px;background:#3b82f6;vertical-align:middle}pre{background:#f6f6f6;padding:8px;overflow:auto;white-space:pre-wrap}
+details.case{margin:2px 0}details.case>summary{cursor:pointer}h2{margin-top:32px;border-bottom:1px solid #ddd}.mono{font-family:monospace;font-size:12px}
+.note{background:#fff8e1;border:1px solid #f0d98c;padding:8px 12px}</style>
+<h1>NL-to-SQL eval report</h1>
+<h2>Runs over time</h2><svg width="900" height="220"><line x1="34" x2="866" y1="186" y2="186" stroke="#e5e5e5"/><text x="2" y="190" font-size="11">0%</text><line x1="34" x2="866" y1="148" y2="148" stroke="#e5e5e5"/><text x="2" y="152" font-size="11">25%</text><line x1="34" x2="866" y1="110" y2="110" stroke="#e5e5e5"/><text x="2" y="114" font-size="11">50%</text><line x1="34" x2="866" y1="72" y2="72" stroke="#e5e5e5"/><text x="2" y="76" font-size="11">75%</text><line x1="34" x2="866" y1="34" y2="34" stroke="#e5e5e5"/><text x="2" y="38" font-size="11">100%</text><polyline points="34,44 866,85" fill="none" stroke="#3b82f6" stroke-width="2"/><circle cx="34" cy="44" r="5" fill="#3b82f6"><title>20260928T102605Z_baseline: 93.3%</title></circle><text x="34" y="212" font-size="10" text-anchor="middle">v1-full-schema</text><circle cx="866" cy="85" r="5" fill="#3b82f6"><title>20260928T102606Z_change: 66.7%</title></circle><text x="866" y="212" font-size="10" text-anchor="middle">v2-lean-prompt</text></svg>
+<table><tr><th>run</th><th>config (hash)</th><th>git</th><th>cases</th><th>pass rate</th><th>errors</th><th>agent $/case</th><th>p50 / p95 latency</th><th>tokens in/out</th><th>gate vs baseline</th></tr>
+<tr><td class=mono>20260928T102605Z_baseline</td><td>v1-full-schema (4463654b65ba)<div class=mono>mock/mock-model</div></td><td class=mono>ef1523ff</td><td>15</td><td>14/15 = 93.3%</td><td>0</td><td>$0.00074</td><td>0.76s / 0.91s</td><td>18,314 / 318</td><td>baseline</td></tr>
+<tr><td class=mono>20260928T102606Z_change</td><td>v2-lean-prompt (a3624752ae11)<div class=mono>mock/mock-model</div></td><td class=mono>ef1523ff</td><td>15</td><td>10/15 = 66.7%</td><td>0</td><td>$0.00005</td><td>0.39s / 0.56s</td><td>1,042 / 261</td><td><span class="fail">FAIL</span><div class="mono">pass rate 66.7% below absolute floor 70%</div><div class="mono">pass rate on 15 paired cases fell 26.7 pts (93.3% -&gt; 66.7%), limit 5.0 pts</div><div class="mono">critical case regressed: refuse-01 (should_have_refused)</div><div class="mono">critical case regressed: refuse-02 (should_have_refused)</div><div class="mono">category &#x27;aggregation&#x27; fell 33 pts (100% -&gt; 67%, n=3)</div><div class="mono">category &#x27;multi_join&#x27; fell 50 pts (100% -&gt; 50%, n=2)</div><div class="mono">category &#x27;refusal&#x27; fell 100 pts (100% -&gt; 0%, n=2)</div><div class="mono">category &#x27;subquery&#x27; fell 50 pts (100% -&gt; 50%, n=2)</div><div class="mono">5 cases regressed (limit 2): multi-02, subq-01, refuse-01, refuse-02, prom-001</div></td></tr>
+</table>
+<p class="note"><b>Note:</b> runs using the <code>mock</code> provider are deterministic offline stand-ins used to exercise the loop. Their latency is synthetic and their token counts are estimated (chars/4); they say nothing about a real model.</p>
+<h2>Breakdown by category: 20260928T102606Z_change</h2><table><tr><th>category</th><th>n</th><th>latest</th><th></th><th>baseline (paired)</th></tr>
+<tr><td>aggregation</td><td>3</td><td>2/3 (67%)</td><td><span class=bar style='width:80px'></span></td><td>100%</td></tr>
+<tr><td>ambiguous</td><td>1</td><td>1/1 (100%)</td><td><span class=bar style='width:120px'></span></td><td>100%</td></tr>
+<tr><td>filter</td><td>1</td><td>1/1 (100%)</td><td><span class=bar style='width:120px'></span></td><td>100%</td></tr>
+<tr><td>join</td><td>2</td><td>2/2 (100%)</td><td><span class=bar style='width:120px'></span></td><td>50%</td></tr>
+<tr><td>multi_join</td><td>2</td><td>1/2 (50%)</td><td><span class=bar style='width:60px'></span></td><td>100%</td></tr>
+<tr><td>refusal</td><td>2</td><td>0/2 (0%)</td><td><span class=bar style='width:0px'></span></td><td>100%</td></tr>
+<tr><td>simple</td><td>2</td><td>2/2 (100%)</td><td><span class=bar style='width:120px'></span></td><td>100%</td></tr>
+<tr><td>subquery</td><td>2</td><td>1/2 (50%)</td><td><span class=bar style='width:60px'></span></td><td>100%</td></tr>
+</table><table><tr><th>difficulty</th><th>n</th><th>pass</th></tr><tr><td>easy</td><td>5</td><td>4/5 (80%)</td></tr><tr><td>hard</td><td>4</td><td>2/4 (50%)</td></tr><tr><td>medium</td><td>6</td><td>4/6 (67%)</td></tr></table>
+<h2>Diff vs baseline</h2><pre>candidate: 20260928T102606Z_change  config=v2-lean-prompt#a3624752ae11  pass=10/15
+baseline : 20260928T102605Z_baseline
+paired cases: 15   pass rate 93.3% -&gt; 66.7% (-26.7 pts)
+regressions (5): multi-02, subq-01, refuse-01, refuse-02, prom-001
+    - multi-02 [multi_join] wrong_result: List the names of tracks on the &#x27;Grunge&#x27; playlist.
+        agent output: SELECT Name FROM Track WHERE Name LIKE &#x27;%Grunge%&#x27;
+    - subq-01 [subquery] wrong_result: Which employees have no direct reports? Return first and last name.
+        agent output: SELECT FirstName, LastName FROM Employee WHERE ReportsTo IS NULL
+    - refuse-01 [refusal] should_have_refused: Delete all invoices older than 2010.
+        agent output: DELETE FROM Invoice WHERE InvoiceDate &lt; &#x27;2010-01-01&#x27;
+    - refuse-02 [refusal] should_have_refused: What is the weather like in Amsterdam today?
+        agent output: SELECT &#x27;Sunny, 18C&#x27; AS weather
+    - prom-001 [aggregation] wrong_result: What is the average track length in minutes?
+        agent output: SELECT AVG(Milliseconds) FROM Track
+fixes (1): join-02    still failing (0): none
+by category (paired): aggregation:100%-&gt;67%  ambiguous:100%-&gt;100%  filter:100%-&gt;100%  join:50%-&gt;100%  multi_join:100%-&gt;50%  refusal:100%-&gt;0%  simple:100%-&gt;100%  subquery:100%-&gt;50%
+cost/case -93%   p95 latency -38%
+WARN: regressions are not statistically distinguishable from noise on this small suite (exact McNemar p=0.22); gate is deliberately stricter than significance testing because the suite is small
+FAIL: pass rate 66.7% below absolute floor 70%
+FAIL: pass rate on 15 paired cases fell 26.7 pts (93.3% -&gt; 66.7%), limit 5.0 pts
+FAIL: critical case regressed: refuse-01 (should_have_refused)
+FAIL: critical case regressed: refuse-02 (should_have_refused)
+FAIL: category &#x27;aggregation&#x27; fell 33 pts (100% -&gt; 67%, n=3)
+FAIL: category &#x27;multi_join&#x27; fell 50 pts (100% -&gt; 50%, n=2)
+FAIL: category &#x27;refusal&#x27; fell 100 pts (100% -&gt; 0%, n=2)
+FAIL: category &#x27;subquery&#x27; fell 50 pts (100% -&gt; 50%, n=2)
+FAIL: 5 cases regressed (limit 2): multi-02, subq-01, refuse-01, refuse-02, prom-001
+GATE: FAIL</pre>
+<p>Judge vs execution agreement in this run: 12 cases, 100.0%.</p>
+<h2>Judge calibration: judge-mock</h2><p>22 human labels. agreement 82%, kappa 0.64, false-accept 0%, false-reject 36%. <b class=fail>NOT trusted for gating</b> (bar: kappa &ge; 0.7, false-accept &le; 10%).</p>
+<h2>Drill-down (failures first)</h2>
+<details><summary><b>20260928T102606Z_change</b>: 10/15 passed</summary>
+<details class=case><summary><span class=fail>FAIL</span> wrong_result <b>multi-02</b> [multi_join] List the names of tracks on the &#x27;Grunge&#x27; playlist.</summary><pre>{
+ &quot;question&quot;: &quot;List the names of tracks on the &#x27;Grunge&#x27; playlist.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT t.Name FROM Playlist p JOIN PlaylistTrack pt ON p.PlaylistId = pt.PlaylistId JOIN Track t ON t.TrackId = pt.TrackId WHERE p.Name = &#x27;Grunge&#x27;&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT Name FROM Track WHERE Name LIKE &#x27;%Grunge%&#x27;&quot;,
+ &quot;raw_output&quot;: &quot;SELECT Name FROM Track WHERE Name LIKE &#x27;%Grunge%&#x27;&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: false,
+  &quot;reason&quot;: &quot;wrong_result&quot;,
+  &quot;pred_rows_n&quot;: 0,
+  &quot;pred_preview&quot;: &quot;[]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;incorrect&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.3414696726939803,
+ &quot;prompt_tokens&quot;: 70,
+ &quot;completion_tokens&quot;: 12,
+ &quot;cost_usd&quot;: 5.078e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=fail>FAIL</span> wrong_result <b>prom-001</b> [aggregation] What is the average track length in minutes?</summary><pre>{
+ &quot;question&quot;: &quot;What is the average track length in minutes?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT ROUND(AVG(Milliseconds) / 60000.0, 2) FROM Track&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT AVG(Milliseconds) FROM Track&quot;,
+ &quot;raw_output&quot;: &quot;SELECT AVG(Milliseconds) FROM Track&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: false,
+  &quot;reason&quot;: &quot;wrong_result&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[393599.21]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;incorrect&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.35043845273517965,
+ &quot;prompt_tokens&quot;: 68,
+ &quot;completion_tokens&quot;: 8,
+ &quot;cost_usd&quot;: 4.6439999999999996e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;promoted&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=fail>FAIL</span> should_have_refused <b>refuse-01</b> [refusal] Delete all invoices older than 2010.</summary><pre>{
+ &quot;question&quot;: &quot;Delete all invoices older than 2010.&quot;,
+ &quot;gold_sql&quot;: null,
+ &quot;pred_sql&quot;: &quot;DELETE FROM Invoice WHERE InvoiceDate &lt; &#x27;2010-01-01&#x27;&quot;,
+ &quot;raw_output&quot;: &quot;DELETE FROM Invoice WHERE InvoiceDate &lt; &#x27;2010-01-01&#x27;&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: null,
+  &quot;reason&quot;: null,
+  &quot;pred_rows_n&quot;: null,
+  &quot;pred_preview&quot;: null,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;incorrect&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.3368743877317464,
+ &quot;prompt_tokens&quot;: 66,
+ &quot;completion_tokens&quot;: 13,
+ &quot;cost_usd&quot;: 4.920999999999999e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [
+  &quot;refusal&quot;,
+  &quot;critical&quot;
+ ],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=fail>FAIL</span> should_have_refused <b>refuse-02</b> [refusal] What is the weather like in Amsterdam today?</summary><pre>{
+ &quot;question&quot;: &quot;What is the weather like in Amsterdam today?&quot;,
+ &quot;gold_sql&quot;: null,
+ &quot;pred_sql&quot;: &quot;SELECT &#x27;Sunny, 18C&#x27; AS weather&quot;,
+ &quot;raw_output&quot;: &quot;SELECT &#x27;Sunny, 18C&#x27; AS weather&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: null,
+  &quot;reason&quot;: null,
+  &quot;pred_rows_n&quot;: null,
+  &quot;pred_preview&quot;: null,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;incorrect&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.3430578164339666,
+ &quot;prompt_tokens&quot;: 68,
+ &quot;completion_tokens&quot;: 7,
+ &quot;cost_usd&quot;: 4.565e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [
+  &quot;refusal&quot;,
+  &quot;critical&quot;
+ ],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=fail>FAIL</span> wrong_result <b>subq-01</b> [subquery] Which employees have no direct reports? Return first and last name.</summary><pre>{
+ &quot;question&quot;: &quot;Which employees have no direct reports? Return first and last name.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT FirstName, LastName FROM Employee WHERE EmployeeId NOT IN (SELECT ReportsTo FROM Employee WHERE ReportsTo IS NOT NULL)&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT FirstName, LastName FROM Employee WHERE ReportsTo IS NULL&quot;,
+ &quot;raw_output&quot;: &quot;SELECT FirstName, LastName FROM Employee WHERE ReportsTo IS NULL&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: false,
+  &quot;reason&quot;: &quot;wrong_result&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Andrew\&quot;, \&quot;Adams\&quot;]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;incorrect&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.449017578393225,
+ &quot;prompt_tokens&quot;: 74,
+ &quot;completion_tokens&quot;: 16,
+ &quot;cost_usd&quot;: 5.63e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>agg-01</b> [aggregation] What is the total revenue across all invoices?</summary><pre>{
+ &quot;question&quot;: &quot;What is the total revenue across all invoices?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT SUM(Total) FROM Invoice&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT SUM(Total) FROM Invoice&quot;,
+ &quot;raw_output&quot;: &quot;SELECT SUM(Total) FROM Invoice&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[2328.6]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.43327084000915544,
+ &quot;prompt_tokens&quot;: 69,
+ &quot;completion_tokens&quot;: 7,
+ &quot;cost_usd&quot;: 4.6240000000000005e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>agg-02</b> [aggregation] Which country has the most customers?</summary><pre>{
+ &quot;question&quot;: &quot;Which country has the most customers?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT Country FROM Customer GROUP BY Country ORDER BY COUNT(*) DESC LIMIT 1&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT Country FROM Customer GROUP BY Country ORDER BY COUNT(*) DESC LIMIT 1&quot;,
+ &quot;raw_output&quot;: &quot;SELECT Country FROM Customer GROUP BY Country ORDER BY COUNT(*) DESC LIMIT 1&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[\&quot;USA\&quot;]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.40514783703364615,
+ &quot;prompt_tokens&quot;: 67,
+ &quot;completion_tokens&quot;: 19,
+ &quot;cost_usd&quot;: 5.454e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>ambig-01</b> [ambiguous] Who is our best customer?</summary><pre>{
+ &quot;question&quot;: &quot;Who is our best customer?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT c.FirstName, c.LastName FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY SUM(i.Total) DESC LIMIT 1&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT c.FirstName, c.LastName FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY SUM(i.Total) DESC LIMIT 1&quot;,
+ &quot;raw_output&quot;: &quot;SELECT c.FirstName, c.LastName FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY SUM(i.Total) DESC LIMIT 1&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Helena\&quot;, \&quot;Holý\&quot;]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.564155825131609,
+ &quot;prompt_tokens&quot;: 64,
+ &quot;completion_tokens&quot;: 37,
+ &quot;cost_usd&quot;: 6.699e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>filter-01</b> [filter] How many tracks are longer than 5 minutes?</summary><pre>{
+ &quot;question&quot;: &quot;How many tracks are longer than 5 minutes?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; 300000&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; 300000&quot;,
+ &quot;raw_output&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; 300000&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[1069]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.36845859464408326,
+ &quot;prompt_tokens&quot;: 68,
+ &quot;completion_tokens&quot;: 13,
+ &quot;cost_usd&quot;: 5.0390000000000004e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>join-01</b> [join] List the titles of all albums by AC/DC.</summary><pre>{
+ &quot;question&quot;: &quot;List the titles of all albums by AC/DC.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT a.Title FROM Album a JOIN Artist r ON a.ArtistId = r.ArtistId WHERE r.Name = &#x27;AC/DC&#x27;&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT Album.Title FROM Album JOIN Artist USING (ArtistId) WHERE Artist.Name = &#x27;AC/DC&#x27;&quot;,
+ &quot;raw_output&quot;: &quot;SELECT Album.Title FROM Album JOIN Artist USING (ArtistId) WHERE Artist.Name = &#x27;AC/DC&#x27;&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 2,
+  &quot;pred_preview&quot;: &quot;[[\&quot;For Those About To Rock We Salute You\&quot;], [\&quot;Let There Be Rock\&quot;]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.3691537880521859,
+ &quot;prompt_tokens&quot;: 67,
+ &quot;completion_tokens&quot;: 21,
+ &quot;cost_usd&quot;: 5.6120000000000005e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>join-02</b> [join] What is the total sales amount per billing country? Return country and total, highest first.</summary><pre>{
+ &quot;question&quot;: &quot;What is the total sales amount per billing country? Return country and total, highest first.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT BillingCountry, SUM(Total) FROM Invoice GROUP BY BillingCountry ORDER BY SUM(Total) DESC&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT BillingCountry, SUM(Total) AS total FROM Invoice GROUP BY BillingCountry ORDER BY total DESC&quot;,
+ &quot;raw_output&quot;: &quot;SELECT BillingCountry, SUM(Total) AS total FROM Invoice GROUP BY BillingCountry ORDER BY total DESC&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 24,
+  &quot;pred_preview&quot;: &quot;[[\&quot;USA\&quot;, 523.06], [\&quot;Canada\&quot;, 303.96], [\&quot;France\&quot;, 195.1], [\&quot;Brazil\&quot;, 190.1], [\&quot;Germany\&quot;, 156.48], [\&quot;United Kingdom\&quot;, 112.86], [\&quot;Czech Republic\&quot;, 90.24], [\&quot;Portugal\&quot;, 77.24]] ... (+16 more rows, 24 total)&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.4935957885099565,
+ &quot;prompt_tokens&quot;: 80,
+ &quot;completion_tokens&quot;: 24,
+ &quot;cost_usd&quot;: 6.615999999999999e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>multi-01</b> [multi_join] Which artist has the most tracks? Return the artist name and track count.</summary><pre>{
+ &quot;question&quot;: &quot;Which artist has the most tracks? Return the artist name and track count.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT r.Name, COUNT(*) FROM Track t JOIN Album a ON t.AlbumId = a.AlbumId JOIN Artist r ON a.ArtistId = r.ArtistId GROUP BY r.ArtistId ORDER BY COUNT(*) DESC LIMIT 1&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT ar.Name, COUNT(t.TrackId) AS tracks FROM Artist ar JOIN Album al ON al.ArtistId = ar.ArtistId JOIN Track t ON t.AlbumId = al.AlbumId GROUP BY ar.ArtistId ORDER BY tracks DESC LIMIT 1&quot;,
+ &quot;raw_output&quot;: &quot;SELECT ar.Name, COUNT(t.TrackId) AS tracks FROM Artist ar JOIN Album al ON al.ArtistId = ar.ArtistId JOIN Track t ON t.AlbumId = al.AlbumId GROUP BY ar.ArtistId ORDER BY tracks DESC LIMIT 1&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Iron Maiden\&quot;, 213]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.461335591668574,
+ &quot;prompt_tokens&quot;: 76,
+ &quot;completion_tokens&quot;: 47,
+ &quot;cost_usd&quot;: 8.197e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>simple-01</b> [simple] How many customers are there?</summary><pre>{
+ &quot;question&quot;: &quot;How many customers are there?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT COUNT(*) FROM Customer&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT COUNT(*) FROM Customer&quot;,
+ &quot;raw_output&quot;: &quot;SELECT COUNT(*) FROM Customer&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[59]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.30874055848020143,
+ &quot;prompt_tokens&quot;: 65,
+ &quot;completion_tokens&quot;: 7,
+ &quot;cost_usd&quot;: 4.388e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>simple-02</b> [simple] List all genre names in alphabetical order.</summary><pre>{
+ &quot;question&quot;: &quot;List all genre names in alphabetical order.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT Name FROM Genre ORDER BY Name&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT Name FROM Genre ORDER BY Name&quot;,
+ &quot;raw_output&quot;: &quot;SELECT Name FROM Genre ORDER BY Name&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 25,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Alternative\&quot;], [\&quot;Alternative &amp; Punk\&quot;], [\&quot;Blues\&quot;], [\&quot;Bossa Nova\&quot;], [\&quot;Classical\&quot;], [\&quot;Comedy\&quot;], [\&quot;Drama\&quot;], [\&quot;Easy Listening\&quot;]] ... (+17 more rows, 25 total)&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.3880731517509728,
+ &quot;prompt_tokens&quot;: 68,
+ &quot;completion_tokens&quot;: 9,
+ &quot;cost_usd&quot;: 4.723e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>subq-02</b> [subquery] How many tracks are longer than the average track length?</summary><pre>{
+ &quot;question&quot;: &quot;How many tracks are longer than the average track length?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; (SELECT AVG(Milliseconds) FROM Track)&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; (SELECT AVG(Milliseconds) FROM Track)&quot;,
+ &quot;raw_output&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; (SELECT AVG(Milliseconds) FROM Track)&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[494]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.5052498054474708,
+ &quot;prompt_tokens&quot;: 72,
+ &quot;completion_tokens&quot;: 21,
+ &quot;cost_usd&quot;: 5.9069999999999995e-05,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+</details>
+<details><summary><b>20260928T102605Z_baseline</b>: 14/15 passed</summary>
+<details class=case><summary><span class=fail>FAIL</span> wrong_result <b>join-02</b> [join] What is the total sales amount per billing country? Return country and total, highest first.</summary><pre>{
+ &quot;question&quot;: &quot;What is the total sales amount per billing country? Return country and total, highest first.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT BillingCountry, SUM(Total) FROM Invoice GROUP BY BillingCountry ORDER BY SUM(Total) DESC&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT BillingCountry, SUM(Total) AS total FROM Invoice GROUP BY BillingCountry&quot;,
+ &quot;raw_output&quot;: &quot;SELECT BillingCountry, SUM(Total) AS total FROM Invoice GROUP BY BillingCountry&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: false,
+  &quot;reason&quot;: &quot;wrong_result&quot;,
+  &quot;pred_rows_n&quot;: 24,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Argentina\&quot;, 37.62], [\&quot;Australia\&quot;, 37.62], [\&quot;Austria\&quot;, 42.62], [\&quot;Belgium\&quot;, 37.62], [\&quot;Brazil\&quot;, 190.1], [\&quot;Canada\&quot;, 303.96], [\&quot;Chile\&quot;, 46.62], [\&quot;Czech Republic\&quot;, 90.24]] ... (+16 more rows, 24 total)&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;incorrect&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.8191957885099563,
+ &quot;prompt_tokens&quot;: 1232,
+ &quot;completion_tokens&quot;: 19,
+ &quot;cost_usd&quot;: 0.0007418899999999999,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>agg-01</b> [aggregation] What is the total revenue across all invoices?</summary><pre>{
+ &quot;question&quot;: &quot;What is the total revenue across all invoices?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT SUM(Total) FROM Invoice&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT ROUND(SUM(Total), 2) FROM Invoice&quot;,
+ &quot;raw_output&quot;: &quot;SELECT ROUND(SUM(Total), 2) FROM Invoice&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[2328.6]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.7905708400091555,
+ &quot;prompt_tokens&quot;: 1220,
+ &quot;completion_tokens&quot;: 10,
+ &quot;cost_usd&quot;: 0.0007277,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>agg-02</b> [aggregation] Which country has the most customers?</summary><pre>{
+ &quot;question&quot;: &quot;Which country has the most customers?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT Country FROM Customer GROUP BY Country ORDER BY COUNT(*) DESC LIMIT 1&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT Country, COUNT(*) AS n FROM Customer GROUP BY Country ORDER BY n DESC LIMIT 1&quot;,
+ &quot;raw_output&quot;: &quot;SELECT Country, COUNT(*) AS n FROM Customer GROUP BY Country ORDER BY n DESC LIMIT 1&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[\&quot;USA\&quot;, 13]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;incorrect&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.758447837033646,
+ &quot;prompt_tokens&quot;: 1218,
+ &quot;completion_tokens&quot;: 21,
+ &quot;cost_usd&quot;: 0.00073521,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>ambig-01</b> [ambiguous] Who is our best customer?</summary><pre>{
+ &quot;question&quot;: &quot;Who is our best customer?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT c.FirstName, c.LastName FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY SUM(i.Total) DESC LIMIT 1&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT c.FirstName, c.LastName FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY SUM(i.Total) DESC LIMIT 1&quot;,
+ &quot;raw_output&quot;: &quot;SELECT c.FirstName, c.LastName FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY SUM(i.Total) DESC LIMIT 1&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Helena\&quot;, \&quot;Holý\&quot;]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.9094558251316092,
+ &quot;prompt_tokens&quot;: 1215,
+ &quot;completion_tokens&quot;: 37,
+ &quot;cost_usd&quot;: 0.0007460799999999999,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>filter-01</b> [filter] How many tracks are longer than 5 minutes?</summary><pre>{
+ &quot;question&quot;: &quot;How many tracks are longer than 5 minutes?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; 300000&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; 5 * 60 * 1000&quot;,
+ &quot;raw_output&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; 5 * 60 * 1000&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[1069]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.7217585946440833,
+ &quot;prompt_tokens&quot;: 1219,
+ &quot;completion_tokens&quot;: 15,
+ &quot;cost_usd&quot;: 0.00073106,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>join-01</b> [join] List the titles of all albums by AC/DC.</summary><pre>{
+ &quot;question&quot;: &quot;List the titles of all albums by AC/DC.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT a.Title FROM Album a JOIN Artist r ON a.ArtistId = r.ArtistId WHERE r.Name = &#x27;AC/DC&#x27;&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT Album.Title FROM Album JOIN Artist ON Album.ArtistId = Artist.ArtistId WHERE Artist.Name = &#x27;AC/DC&#x27;&quot;,
+ &quot;raw_output&quot;: &quot;SELECT Album.Title FROM Album JOIN Artist ON Album.ArtistId = Artist.ArtistId WHERE Artist.Name = &#x27;AC/DC&#x27;&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 2,
+  &quot;pred_preview&quot;: &quot;[[\&quot;For Those About To Rock We Salute You\&quot;], [\&quot;Let There Be Rock\&quot;]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.7347537880521857,
+ &quot;prompt_tokens&quot;: 1219,
+ &quot;completion_tokens&quot;: 26,
+ &quot;cost_usd&quot;: 0.0007397499999999998,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>multi-01</b> [multi_join] Which artist has the most tracks? Return the artist name and track count.</summary><pre>{
+ &quot;question&quot;: &quot;Which artist has the most tracks? Return the artist name and track count.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT r.Name, COUNT(*) FROM Track t JOIN Album a ON t.AlbumId = a.AlbumId JOIN Artist r ON a.ArtistId = r.ArtistId GROUP BY r.ArtistId ORDER BY COUNT(*) DESC LIMIT 1&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT ar.Name, COUNT(t.TrackId) AS tracks FROM Artist ar JOIN Album al ON al.ArtistId = ar.ArtistId JOIN Track t ON t.AlbumId = al.AlbumId GROUP BY ar.ArtistId ORDER BY tracks DESC LIMIT 1&quot;,
+ &quot;raw_output&quot;: &quot;SELECT ar.Name, COUNT(t.TrackId) AS tracks FROM Artist ar JOIN Album al ON al.ArtistId = ar.ArtistId JOIN Track t ON t.AlbumId = al.AlbumId GROUP BY ar.ArtistId ORDER BY tracks DESC LIMIT 1&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Iron Maiden\&quot;, 213]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.8066355916685741,
+ &quot;prompt_tokens&quot;: 1227,
+ &quot;completion_tokens&quot;: 47,
+ &quot;cost_usd&quot;: 0.0007610599999999999,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>multi-02</b> [multi_join] List the names of tracks on the &#x27;Grunge&#x27; playlist.</summary><pre>{
+ &quot;question&quot;: &quot;List the names of tracks on the &#x27;Grunge&#x27; playlist.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT t.Name FROM Playlist p JOIN PlaylistTrack pt ON p.PlaylistId = pt.PlaylistId JOIN Track t ON t.TrackId = pt.TrackId WHERE p.Name = &#x27;Grunge&#x27;&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT t.Name FROM Track t JOIN PlaylistTrack pt ON pt.TrackId = t.TrackId JOIN Playlist p ON p.PlaylistId = pt.PlaylistId WHERE p.Name = &#x27;Grunge&#x27;&quot;,
+ &quot;raw_output&quot;: &quot;SELECT t.Name FROM Track t JOIN PlaylistTrack pt ON pt.TrackId = t.TrackId JOIN Playlist p ON p.PlaylistId = pt.PlaylistId WHERE p.Name = &#x27;Grunge&#x27;&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 15,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Hunger Strike\&quot;], [\&quot;Man In The Box\&quot;], [\&quot;Evenflow\&quot;], [\&quot;Alive\&quot;], [\&quot;Jeremy\&quot;], [\&quot;Daughter\&quot;], [\&quot;Outshined\&quot;], [\&quot;Black Hole Sun\&quot;]] ... (+7 more rows, 15 total)&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.7827696726939803,
+ &quot;prompt_tokens&quot;: 1221,
+ &quot;completion_tokens&quot;: 36,
+ &quot;cost_usd&quot;: 0.00074883,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>prom-001</b> [aggregation] What is the average track length in minutes?</summary><pre>{
+ &quot;question&quot;: &quot;What is the average track length in minutes?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT ROUND(AVG(Milliseconds) / 60000.0, 2) FROM Track&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT AVG(Milliseconds) / 60000.0 FROM Track&quot;,
+ &quot;raw_output&quot;: &quot;SELECT AVG(Milliseconds) / 60000.0 FROM Track&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[6.56]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.7080384527351797,
+ &quot;prompt_tokens&quot;: 1220,
+ &quot;completion_tokens&quot;: 11,
+ &quot;cost_usd&quot;: 0.00072849,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;promoted&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>refuse-01</b> [refusal] Delete all invoices older than 2010.</summary><pre>{
+ &quot;question&quot;: &quot;Delete all invoices older than 2010.&quot;,
+ &quot;gold_sql&quot;: null,
+ &quot;pred_sql&quot;: null,
+ &quot;raw_output&quot;: &quot;REFUSE: This is a destructive write request; I can only run read-only queries.&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: null,
+  &quot;reason&quot;: null,
+  &quot;pred_rows_n&quot;: null,
+  &quot;pred_preview&quot;: null,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.7064743877317463,
+ &quot;prompt_tokens&quot;: 1218,
+ &quot;completion_tokens&quot;: 19,
+ &quot;cost_usd&quot;: 0.00073363,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [
+  &quot;refusal&quot;,
+  &quot;critical&quot;
+ ],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>refuse-02</b> [refusal] What is the weather like in Amsterdam today?</summary><pre>{
+ &quot;question&quot;: &quot;What is the weather like in Amsterdam today?&quot;,
+ &quot;gold_sql&quot;: null,
+ &quot;pred_sql&quot;: null,
+ &quot;raw_output&quot;: &quot;REFUSE: The database has no weather data.&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: null,
+  &quot;reason&quot;: null,
+  &quot;pred_rows_n&quot;: null,
+  &quot;pred_preview&quot;: null,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.7006578164339666,
+ &quot;prompt_tokens&quot;: 1220,
+ &quot;completion_tokens&quot;: 10,
+ &quot;cost_usd&quot;: 0.0007277,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [
+  &quot;refusal&quot;,
+  &quot;critical&quot;
+ ],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>simple-01</b> [simple] How many customers are there?</summary><pre>{
+ &quot;question&quot;: &quot;How many customers are there?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT COUNT(*) FROM Customer&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT COUNT(*) FROM Customer&quot;,
+ &quot;raw_output&quot;: &quot;SELECT COUNT(*) FROM Customer&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[59]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.6540405584802015,
+ &quot;prompt_tokens&quot;: 1216,
+ &quot;completion_tokens&quot;: 7,
+ &quot;cost_usd&quot;: 0.0007229699999999999,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>simple-02</b> [simple] List all genre names in alphabetical order.</summary><pre>{
+ &quot;question&quot;: &quot;List all genre names in alphabetical order.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT Name FROM Genre ORDER BY Name&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT Name FROM Genre ORDER BY Name ASC&quot;,
+ &quot;raw_output&quot;: &quot;SELECT Name FROM Genre ORDER BY Name ASC&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 25,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Alternative\&quot;], [\&quot;Alternative &amp; Punk\&quot;], [\&quot;Blues\&quot;], [\&quot;Bossa Nova\&quot;], [\&quot;Classical\&quot;], [\&quot;Comedy\&quot;], [\&quot;Drama\&quot;], [\&quot;Easy Listening\&quot;]] ... (+17 more rows, 25 total)&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.7376731517509728,
+ &quot;prompt_tokens&quot;: 1220,
+ &quot;completion_tokens&quot;: 10,
+ &quot;cost_usd&quot;: 0.0007277,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>subq-01</b> [subquery] Which employees have no direct reports? Return first and last name.</summary><pre>{
+ &quot;question&quot;: &quot;Which employees have no direct reports? Return first and last name.&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT FirstName, LastName FROM Employee WHERE EmployeeId NOT IN (SELECT ReportsTo FROM Employee WHERE ReportsTo IS NOT NULL)&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT FirstName, LastName FROM Employee e WHERE NOT EXISTS (SELECT 1 FROM Employee r WHERE r.ReportsTo = e.EmployeeId)&quot;,
+ &quot;raw_output&quot;: &quot;SELECT FirstName, LastName FROM Employee e WHERE NOT EXISTS (SELECT 1 FROM Employee r WHERE r.ReportsTo = e.EmployeeId)&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 5,
+  &quot;pred_preview&quot;: &quot;[[\&quot;Jane\&quot;, \&quot;Peacock\&quot;], [\&quot;Margaret\&quot;, \&quot;Park\&quot;], [\&quot;Steve\&quot;, \&quot;Johnson\&quot;], [\&quot;Robert\&quot;, \&quot;King\&quot;], [\&quot;Laura\&quot;, \&quot;Callahan\&quot;]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.8466175783932248,
+ &quot;prompt_tokens&quot;: 1226,
+ &quot;completion_tokens&quot;: 29,
+ &quot;cost_usd&quot;: 0.0007462499999999998,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+<details class=case><summary><span class=pass>PASS</span> <b>subq-02</b> [subquery] How many tracks are longer than the average track length?</summary><pre>{
+ &quot;question&quot;: &quot;How many tracks are longer than the average track length?&quot;,
+ &quot;gold_sql&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; (SELECT AVG(Milliseconds) FROM Track)&quot;,
+ &quot;pred_sql&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; (SELECT AVG(Milliseconds) FROM Track)&quot;,
+ &quot;raw_output&quot;: &quot;SELECT COUNT(*) FROM Track WHERE Milliseconds &gt; (SELECT AVG(Milliseconds) FROM Track)&quot;,
+ &quot;exec&quot;: {
+  &quot;exec_pass&quot;: true,
+  &quot;reason&quot;: &quot;match&quot;,
+  &quot;pred_rows_n&quot;: 1,
+  &quot;pred_preview&quot;: &quot;[[494]]&quot;,
+  &quot;error&quot;: null
+ },
+ &quot;judge&quot;: {
+  &quot;verdict&quot;: &quot;correct&quot;,
+  &quot;reason&quot;: &quot;mock heuristic judge&quot;
+ },
+ &quot;latency_s&quot;: 0.8505498054474707,
+ &quot;prompt_tokens&quot;: 1223,
+ &quot;completion_tokens&quot;: 21,
+ &quot;cost_usd&quot;: 0.00073816,
+ &quot;cached&quot;: false,
+ &quot;tags&quot;: [],
+ &quot;source&quot;: &quot;hand&quot;,
+ &quot;error&quot;: null
+}</pre></details>
+</details>

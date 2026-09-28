@@ -1,0 +1,69 @@
+name: eval-loop
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 3 * * *"        # nightly: full suite, cache off, catches provider-side model drift
+  workflow_dispatch:
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Unit tests (graders, gate, promote, runner, suite discrimination)
+        run: python -m pytest -q
+
+      - name: Validate eval cases (gold SQL executes, ids unique)
+        run: python -m evalloop validate-cases
+
+      - name: Run the candidate config over the eval set
+        id: run
+        shell: bash                       # explicit shell => pipefail, so a failed run fails the step
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          # Repo *variables* choose what is evaluated; defaults run fully offline with the mock provider.
+          EVAL_CONFIG: ${{ vars.EVAL_CONFIG || 'configs/candidate.yaml' }}
+          EVAL_JUDGE: ${{ vars.EVAL_JUDGE || 'configs/judge_mock.yaml' }}
+        run: |
+          FLAGS=""
+          if [ "${{ github.event_name }}" = "schedule" ]; then FLAGS="--no-cache"; fi
+          python -m evalloop run --config "$EVAL_CONFIG" --judge "$EVAL_JUDGE" \
+              --label "ci-${GITHUB_RUN_NUMBER}" $FLAGS | tee run.log
+          echo "run_id=$(grep '^RUN_ID=' run.log | cut -d= -f2)" >> "$GITHUB_OUTPUT"
+
+      - name: Regression gate (fails the build on regression)
+        shell: bash
+        run: |
+          code=0
+          python -m evalloop compare --base baseline --cand "${{ steps.run.outputs.run_id }}" --json gate.json > gate.txt || code=$?
+          cat gate.txt
+          { echo '### Eval gate'; echo '```'; cat gate.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit $code
+
+      - name: Build report
+        if: always()
+        run: python -m evalloop report
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report-and-runs
+          path: |
+            report/index.html
+            runs/
+            gate.json
+            gate.txt

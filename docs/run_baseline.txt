@@ -1,0 +1,4 @@
+$ python -m evalloop run --config configs/mock/v1.yaml --label baseline --no-cache
+v1-full-schema#4463654b65ba: 14/15 passed (93.3%), errors=0, agent cost $0.0111, p95 latency 0.91s, wall 0.03s
+  FAIL join-02     wrong_result
+RUN_ID=20260928T102605Z_baseline
