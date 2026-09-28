@@ -1,0 +1,7 @@
+{
+  "question": "What is the average track length in minutes?",
+  "agent_output": "SELECT AVG(Milliseconds) FROM Track",
+  "reported_by": "thumbs-down on answer (simulated example of a production failure)",
+  "config_name": "v2-lean-prompt",
+  "note": "Agent returned raw milliseconds (393599.2) instead of minutes (~6.56). Unit-conversion failure not covered by the original suite."
+}

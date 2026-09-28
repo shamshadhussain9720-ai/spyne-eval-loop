@@ -1,0 +1,10 @@
+name: v2-lean-prompt
+provider:
+  type: mock
+  profile: weak
+model: mock-model
+temperature: 0
+seed: 42
+max_tokens: 400
+prompt_file: prompts/v2_lean_prompt.txt
+pricing: {input_per_mtok: 0.59, output_per_mtok: 0.79}   # USD per 1M tokens; verify against your provider's price list

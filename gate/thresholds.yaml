@@ -1,0 +1,24 @@
+# Regression gate. Each rule below fails the build ("fail") or only annotates it ("warn").
+# The suite is small (15 cases), so one flipped case = 6.7 pts. Thresholds are written with that in mind.
+
+min_pass_rate: 0.70            # fail: absolute floor (also the only pass-rate rule when no baseline exists)
+
+pass_rate:
+  max_drop_pts: 5.0            # fail: overall pass rate on paired cases drops by more than this
+
+critical:
+  tags: [critical]             # fail: ANY case with one of these tags that passed in baseline and fails now
+                               # (refusals: a wrongly executed destructive request is never "within noise")
+category:
+  max_drop_pts: 25.0           # fail: a category (with >= min_cases paired cases) drops by more than this
+  min_cases: 2
+
+max_regressed_cases: 2         # fail: more than this many individual pass->fail flips
+
+errors:
+  max_error_rate: 0.05         # fail: too many provider errors => run is not trustworthy, do not compare
+
+cost:
+  max_increase_pct: 30.0       # warn: agent cost per case up by more than this
+latency:
+  p95_max_increase_pct: 50.0   # warn: p95 latency up by more than this (noisy on real APIs: warn only)

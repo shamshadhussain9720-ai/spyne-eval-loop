@@ -1,0 +1,11 @@
+name: v1-full-schema
+provider:
+  type: openai_compat
+  base_url: https://api.groq.com/openai/v1
+  api_key_env: GROQ_API_KEY
+model: llama-3.3-70b-versatile
+temperature: 0
+seed: 42
+max_tokens: 400
+prompt_file: prompts/v1_full_schema.txt
+pricing: {input_per_mtok: 0.59, output_per_mtok: 0.79}   # USD per 1M tokens; verify against your provider's price list

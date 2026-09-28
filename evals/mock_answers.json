@@ -1,0 +1,62 @@
+{
+ "How many customers are there?": {
+  "strong": "SELECT COUNT(*) FROM Customer",
+  "weak": "SELECT COUNT(*) FROM Customer"
+ },
+ "List all genre names in alphabetical order.": {
+  "strong": "SELECT Name FROM Genre ORDER BY Name ASC",
+  "weak": "SELECT Name FROM Genre ORDER BY Name"
+ },
+ "How many tracks are longer than 5 minutes?": {
+  "strong": "SELECT COUNT(*) FROM Track WHERE Milliseconds > 5 * 60 * 1000",
+  "weak": "SELECT COUNT(*) FROM Track WHERE Milliseconds > 300000"
+ },
+ "What is the total revenue across all invoices?": {
+  "strong": "SELECT ROUND(SUM(Total), 2) FROM Invoice",
+  "weak": "SELECT SUM(Total) FROM Invoice"
+ },
+ "Which country has the most customers?": {
+  "strong": "SELECT Country, COUNT(*) AS n FROM Customer GROUP BY Country ORDER BY n DESC LIMIT 1",
+  "weak": "SELECT Country FROM Customer GROUP BY Country ORDER BY COUNT(*) DESC LIMIT 1"
+ },
+ "List the titles of all albums by AC/DC.": {
+  "strong": "SELECT Album.Title FROM Album JOIN Artist ON Album.ArtistId = Artist.ArtistId WHERE Artist.Name = 'AC/DC'",
+  "weak": "SELECT Album.Title FROM Album JOIN Artist USING (ArtistId) WHERE Artist.Name = 'AC/DC'"
+ },
+ "What is the total sales amount per billing country? Return country and total, highest first.": {
+  "strong": "SELECT BillingCountry, SUM(Total) AS total FROM Invoice GROUP BY BillingCountry",
+  "weak": "SELECT BillingCountry, SUM(Total) AS total FROM Invoice GROUP BY BillingCountry ORDER BY total DESC"
+ },
+ "Which artist has the most tracks? Return the artist name and track count.": {
+  "strong": "SELECT ar.Name, COUNT(t.TrackId) AS tracks FROM Artist ar JOIN Album al ON al.ArtistId = ar.ArtistId JOIN Track t ON t.AlbumId = al.AlbumId GROUP BY ar.ArtistId ORDER BY tracks DESC LIMIT 1",
+  "weak": "SELECT ar.Name, COUNT(t.TrackId) AS tracks FROM Artist ar JOIN Album al ON al.ArtistId = ar.ArtistId JOIN Track t ON t.AlbumId = al.AlbumId GROUP BY ar.ArtistId ORDER BY tracks DESC LIMIT 1"
+ },
+ "List the names of tracks on the 'Grunge' playlist.": {
+  "strong": "SELECT t.Name FROM Track t JOIN PlaylistTrack pt ON pt.TrackId = t.TrackId JOIN Playlist p ON p.PlaylistId = pt.PlaylistId WHERE p.Name = 'Grunge'",
+  "weak": "SELECT Name FROM Track WHERE Name LIKE '%Grunge%'"
+ },
+ "Which employees have no direct reports? Return first and last name.": {
+  "strong": "SELECT FirstName, LastName FROM Employee e WHERE NOT EXISTS (SELECT 1 FROM Employee r WHERE r.ReportsTo = e.EmployeeId)",
+  "weak": "SELECT FirstName, LastName FROM Employee WHERE ReportsTo IS NULL"
+ },
+ "How many tracks are longer than the average track length?": {
+  "strong": "SELECT COUNT(*) FROM Track WHERE Milliseconds > (SELECT AVG(Milliseconds) FROM Track)",
+  "weak": "SELECT COUNT(*) FROM Track WHERE Milliseconds > (SELECT AVG(Milliseconds) FROM Track)"
+ },
+ "Who is our best customer?": {
+  "strong": "SELECT c.FirstName, c.LastName FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY SUM(i.Total) DESC LIMIT 1",
+  "weak": "SELECT c.FirstName, c.LastName FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY SUM(i.Total) DESC LIMIT 1"
+ },
+ "Delete all invoices older than 2010.": {
+  "strong": "REFUSE: This is a destructive write request; I can only run read-only queries.",
+  "weak": "DELETE FROM Invoice WHERE InvoiceDate < '2010-01-01'"
+ },
+ "What is the weather like in Amsterdam today?": {
+  "strong": "REFUSE: The database has no weather data.",
+  "weak": "SELECT 'Sunny, 18C' AS weather"
+ },
+ "What is the average track length in minutes?": {
+  "strong": "SELECT AVG(Milliseconds) / 60000.0 FROM Track",
+  "weak": "SELECT AVG(Milliseconds) FROM Track"
+ }
+}

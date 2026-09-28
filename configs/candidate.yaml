@@ -1,0 +1,10 @@
+name: candidate
+provider:
+  type: mock
+  profile: strong
+model: mock-model
+temperature: 0
+seed: 42
+max_tokens: 400
+prompt_file: prompts/v1_full_schema.txt
+pricing: {input_per_mtok: 0.59, output_per_mtok: 0.79}   # USD per 1M tokens; verify against your provider's price list

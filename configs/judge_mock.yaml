@@ -1,0 +1,7 @@
+name: judge-mock
+provider: {type: mock}
+model: mock-judge
+temperature: 0
+seed: 42
+max_tokens: 200
+pricing: {input_per_mtok: 0.0, output_per_mtok: 0.0}

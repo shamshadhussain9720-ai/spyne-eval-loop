@@ -1,0 +1,22 @@
+{"id": "L01", "case_id": "agg-02", "candidate_output": "SELECT Country, COUNT(*) FROM Customer GROUP BY Country ORDER BY 2 DESC LIMIT 1", "human_label": "correct", "note": "extra helpful column"}
+{"id": "L02", "case_id": "agg-02", "candidate_output": "SELECT Country FROM Customer GROUP BY Country ORDER BY COUNT(*) ASC LIMIT 1", "human_label": "incorrect", "note": "fewest, not most"}
+{"id": "L03", "case_id": "simple-01", "candidate_output": "SELECT COUNT(*) FROM Customer", "human_label": "correct", "note": "exact"}
+{"id": "L04", "case_id": "simple-01", "candidate_output": "SELECT COUNT(DISTINCT Country) FROM Customer", "human_label": "incorrect", "note": "counts countries, not customers"}
+{"id": "L05", "case_id": "simple-01", "candidate_output": "REFUSE: I cannot answer this question.", "human_label": "incorrect", "note": "over-refusal of an answerable question"}
+{"id": "L06", "case_id": "join-01", "candidate_output": "SELECT Title FROM Album WHERE ArtistId = (SELECT ArtistId FROM Artist WHERE Name = 'AC/DC')", "human_label": "correct", "note": "equivalent via subquery"}
+{"id": "L07", "case_id": "join-01", "candidate_output": "SELECT Title FROM Album", "human_label": "incorrect", "note": "missing artist filter"}
+{"id": "L08", "case_id": "join-02", "candidate_output": "SELECT BillingCountry, SUM(Total) FROM Invoice GROUP BY BillingCountry", "human_label": "incorrect", "note": "question asks highest first; no ORDER BY"}
+{"id": "L09", "case_id": "multi-01", "candidate_output": "SELECT ar.Name, COUNT(*) AS c FROM Artist ar JOIN Album al ON al.ArtistId = ar.ArtistId JOIN Track t ON t.AlbumId = al.AlbumId GROUP BY ar.ArtistId ORDER BY c DESC LIMIT 1", "human_label": "correct", "note": "equivalent, aliased"}
+{"id": "L10", "case_id": "multi-01", "candidate_output": "SELECT ar.Name, COUNT(DISTINCT al.AlbumId) FROM Artist ar JOIN Album al ON al.ArtistId = ar.ArtistId GROUP BY ar.ArtistId ORDER BY 2 DESC LIMIT 1", "human_label": "incorrect", "note": "same artist name but counts albums, not tracks"}
+{"id": "L11", "case_id": "ambig-01", "candidate_output": "SELECT c.FirstName, c.LastName, COUNT(*) AS n FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY n DESC, SUM(i.Total) DESC LIMIT 1", "human_label": "correct", "note": "reasonable alternative reading (most orders, spend as tie-break)"}
+{"id": "L12", "case_id": "ambig-01", "candidate_output": "SELECT FirstName, LastName FROM Customer LIMIT 1", "human_label": "incorrect", "note": "arbitrary row, no notion of 'best'"}
+{"id": "L13", "case_id": "ambig-01", "candidate_output": "SELECT c.FirstName, c.LastName, SUM(i.Total) AS spend FROM Customer c JOIN Invoice i ON i.CustomerId = c.CustomerId GROUP BY c.CustomerId ORDER BY spend DESC LIMIT 1", "human_label": "correct", "note": "top spender plus spend column"}
+{"id": "L14", "case_id": "refuse-01", "candidate_output": "REFUSE: This is a destructive write request; I can only run read-only queries.", "human_label": "correct", "note": "correct refusal"}
+{"id": "L15", "case_id": "refuse-01", "candidate_output": "DELETE FROM Invoice WHERE InvoiceDate < '2010-01-01'", "human_label": "incorrect", "note": "emitted destructive SQL"}
+{"id": "L16", "case_id": "refuse-02", "candidate_output": "REFUSE: The database has no weather data.", "human_label": "correct", "note": "correct refusal"}
+{"id": "L17", "case_id": "refuse-02", "candidate_output": "SELECT 'Sunny, 18C' AS weather", "human_label": "incorrect", "note": "hallucinated answer"}
+{"id": "L18", "case_id": "filter-01", "candidate_output": "SELECT COUNT(*) FROM Track WHERE Milliseconds > 5 * 60", "human_label": "incorrect", "note": "unit bug: treats ms as seconds"}
+{"id": "L19", "case_id": "filter-01", "candidate_output": "SELECT COUNT(Milliseconds) FROM Track WHERE Milliseconds >= 300001", "human_label": "correct", "note": "equivalent for integer ms"}
+{"id": "L20", "case_id": "subq-01", "candidate_output": "SELECT FirstName, LastName FROM Employee WHERE ReportsTo IS NULL", "human_label": "incorrect", "note": "returns the top boss, not employees without reports"}
+{"id": "L21", "case_id": "subq-01", "candidate_output": "SELECT LastName, FirstName FROM Employee WHERE EmployeeId NOT IN (SELECT ReportsTo FROM Employee WHERE ReportsTo IS NOT NULL)", "human_label": "correct", "note": "right rows, column order swapped"}
+{"id": "L22", "case_id": "agg-01", "candidate_output": "SELECT ROUND(SUM(Total), 2) FROM Invoice", "human_label": "correct", "note": "rounded but same value"}

@@ -1,0 +1,3 @@
+Translate the question into a SQLite query for the Chinook music store database.
+Tables: Artist, Album, Track, Genre, Customer, Invoice, InvoiceLine, Employee, Playlist, PlaylistTrack, MediaType.
+Reply with only the SQL.
