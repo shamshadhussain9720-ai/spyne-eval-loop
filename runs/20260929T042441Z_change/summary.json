@@ -1,15 +1,16 @@
 {
-  "run_id": "20260928T102606Z_change",
+  "run_id": "20260929T042441Z_change",
   "label": "change",
-  "created_utc": "2026-09-28T10:26:06+00:00",
-  "git_sha": "ef1523ff",
+  "created_utc": "2026-09-29T04:24:41+00:00",
+  "git_sha": "3a088083",
   "agent_config": {
     "name": "v2-lean-prompt",
     "provider": {
-      "type": "mock",
-      "profile": "weak"
+      "type": "openai_compat",
+      "base_url": "https://api.groq.com/openai/v1",
+      "api_key_env": "GROQ_API_KEY"
     },
-    "model": "mock-model",
+    "model": "openai/gpt-oss-120b",
     "temperature": 0,
     "seed": 42,
     "max_tokens": 400,
@@ -18,42 +19,44 @@
       "input_per_mtok": 0.59,
       "output_per_mtok": 0.79
     },
-    "config_path": "configs/mock/v2.yaml",
-    "config_hash": "a3624752ae11"
+    "config_path": "configs/groq/v2.yaml",
+    "config_hash": "61609bfbddb1"
   },
   "judge_config": {
-    "name": "judge-mock",
+    "name": "judge-groq",
     "provider": {
-      "type": "mock"
+      "type": "openai_compat",
+      "base_url": "https://api.groq.com/openai/v1",
+      "api_key_env": "GROQ_API_KEY"
     },
-    "model": "mock-judge",
+    "model": "openai/gpt-oss-120b",
     "temperature": 0,
     "seed": 42,
     "max_tokens": 200,
     "pricing": {
-      "input_per_mtok": 0.0,
-      "output_per_mtok": 0.0
+      "input_per_mtok": 0.59,
+      "output_per_mtok": 0.79
     },
-    "config_path": "configs/judge_mock.yaml",
-    "config_hash": "295937f183af"
+    "config_path": "configs/judge_groq.yaml",
+    "config_hash": "980e4f3d57bf"
   },
   "cases_sha": "18845425ed93",
-  "cache_used": false,
-  "concurrency": 8,
+  "cache_used": true,
+  "concurrency": 1,
   "judge_sample_rate": 1.0,
-  "wall_time_s": 0.03,
+  "wall_time_s": 30.11,
   "n_cases": 15,
   "n_errors": 0,
   "overall": {
     "n": 15,
-    "passed": 10,
-    "rate": 0.6666666666666666
+    "passed": 13,
+    "rate": 0.8666666666666667
   },
   "by_category": {
     "aggregation": {
       "n": 3,
-      "passed": 2,
-      "rate": 0.6666666666666666
+      "passed": 3,
+      "rate": 1.0
     },
     "ambiguous": {
       "n": 1,
@@ -72,8 +75,8 @@
     },
     "multi_join": {
       "n": 2,
-      "passed": 1,
-      "rate": 0.5
+      "passed": 2,
+      "rate": 1.0
     },
     "refusal": {
       "n": 2,
@@ -87,8 +90,8 @@
     },
     "subquery": {
       "n": 2,
-      "passed": 1,
-      "rate": 0.5
+      "passed": 2,
+      "rate": 1.0
     }
   },
   "by_difficulty": {
@@ -99,29 +102,29 @@
     },
     "hard": {
       "n": 4,
-      "passed": 2,
-      "rate": 0.5
+      "passed": 4,
+      "rate": 1.0
     },
     "medium": {
       "n": 6,
-      "passed": 4,
-      "rate": 0.6666666666666666
+      "passed": 5,
+      "rate": 0.8333333333333334
     }
   },
   "latency_s": {
-    "mean": 0.40786931258106357,
-    "p50": 0.3880731517509728,
-    "p95": 0.564155825131609
+    "mean": 1.039958266733447,
+    "p50": 1.000522667000041,
+    "p95": 1.718218624999281
   },
   "tokens": {
-    "prompt": 1042,
-    "completion": 261
+    "prompt": 2013,
+    "completion": 2269
   },
   "cost_usd": {
-    "agent": 0.00082097,
-    "judge": 0.0,
-    "total": 0.00082097,
-    "agent_per_case": 5.473133333333333e-05
+    "agent": 0.0029801800000000002,
+    "judge": 0.00473019,
+    "total": 0.007710369999999999,
+    "agent_per_case": 0.00019867866666666668
   },
   "judge_exec_agreement": {
     "n": 12,

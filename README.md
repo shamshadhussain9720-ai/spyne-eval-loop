@@ -4,11 +4,12 @@ A small text-to-SQL agent (Chinook, SQLite) and, around it, the loop this assign
 **every change is run through an eval suite, graded, diffed against a baseline, gated, reported, and every
 production failure can be turned into a permanent test.**
 
-> **Read this first: what the committed runs are.** The two committed runs (`runs/*_baseline`, `runs/*_change`) were produced
-> with the built-in **`mock` provider**: a deterministic, offline stand-in for an LLM (the authoring environment had no LLM API access).
-> They exercise and prove the *loop* (grading, diff, gate, report, promotion). They say **nothing about how a real model performs**, and
-> their latency is synthetic and token counts are estimated. Real-model configs are included (`configs/groq/`); see
-> [Run it with a real model](#run-it-with-a-real-model). The architecture note says what this does and does not prove.
+> **Read this first: what the committed runs are.** The two committed runs (`runs/*_baseline`, `runs/*_change`) use a **real model**
+> (`openai/gpt-oss-120b` via the Groq API), run with `--concurrency 1` to stay under Groq's free-tier rate limit (8,000 tokens/minute
+> caused 429 errors at concurrency 4; see ARCHITECTURE.md). The lean-prompt change (`v2-lean-prompt`) is 79% cheaper per case but
+> fails the gate: dropping the refusal rule from the prompt causes the agent to emit a real destructive SQL statement (a correctly
+> cascaded DELETE across InvoiceLine and Invoice) instead of refusing. An offline deterministic mock provider is also included
+> (`configs/mock/`) and used by the test suite, so tests run without an API key.
 
 ## Run it in ten minutes (offline, no API key)
 

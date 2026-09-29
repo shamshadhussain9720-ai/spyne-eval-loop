@@ -24,6 +24,12 @@ config (YAML+prompt, hashed) ─► runner (async, cached) ─► graders ─►
 Already in place: bounded concurrency, retry with backoff/jitter, cache, judge sampling (`--judge-sample-rate`), per-run cost accounting, JSONL results (streamable). Needed: (1) PR runs on a **stratified subset** (all critical + a fixed sample per category), full suite nightly and on release candidates; (2) shard cases across CI jobs and merge results; (3) a token-bucket rate limiter shared across workers instead of per-call backoff; (4) summaries in Postgres and results in object storage, with the report served (paginated) from that; (5) per-case stability history to auto-quarantine flaky cases. Storage: 10k cases ≈ 10-20 MB/run ⇒ ~1 GB/week at 50 runs; system prompt stored once per run, not per case.
 
 ## Gaps (honest)
+* **Groq free tier forced `--concurrency 1`.** At `--concurrency 4`, `openai/gpt-oss-120b` hit Groq's free-tier rate limit
+  (8,000 tokens/minute) and 4 of 15 cases failed with `infra_error` (429s) even after retry/backoff. Concurrency 1 fixed it
+  but the wall-clock time for 15 cases went from under 10s to ~30s. A production setup would need either a paid tier with a
+  higher TPM limit, or a token-bucket limiter in the runner that paces requests to a known budget instead of firing them
+  concurrently and backing off after the fact.
+
 * **No real-model run is committed.** The authoring sandbox blocked LLM APIs, so committed runs use the deterministic mock provider. The loop, gate, report and promotion are exercised end to end; the numbers are not evidence about any real model. The Groq configs are written but **untested by me**, as is the CI workflow on GitHub itself (I ran its steps locally; YAML parses).
 * The judge shown is a deliberately naive mock (kappa 0.64, flagged untrusted). A real judge needs re-calibration on more than 22 labels, and the runner does not yet *refuse* to let an uncalibrated judge gate `judge`-graded cases; it only reports it.
 * 15 cases cannot support confidence intervals; categories have n=2-3. No N-repeat voting, so a real-API flake can flip a case.

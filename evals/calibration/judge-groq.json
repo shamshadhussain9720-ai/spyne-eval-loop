@@ -1,0 +1,19 @@
+{
+  "judge_config": {
+    "name": "judge-groq",
+    "model": "openai/gpt-oss-120b",
+    "config_hash": "980e4f3d57bf"
+  },
+  "n_labels": 22,
+  "n_invalid": 2,
+  "agreement": 1.0,
+  "kappa": 1.0,
+  "false_accept_rate": 0.0,
+  "false_reject_rate": 0.0,
+  "disagreements": [],
+  "thresholds": {
+    "min_kappa": 0.7,
+    "max_false_accept": 0.1
+  },
+  "trusted_for_gating": true
+}
